@@ -1,2 +1,0 @@
-Python Matrix Code Rainer
-============================
