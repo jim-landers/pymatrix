@@ -14,13 +14,6 @@ def main(stdscreen):
     # matrixRainer.LetItDebug()
 
 
-
-    # Test Zone start
-
-    # Test Zone end
-
-
-
+# Executes main in a curses wrapper() to ensure a clean program termination.
 wrapper(main)
-
 
