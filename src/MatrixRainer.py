@@ -1,4 +1,4 @@
-import string, random
+import curses
 from time import sleep
 
 from Droplet import Droplet
@@ -8,15 +8,19 @@ class MatrixRainer:
 
 
     def __init__(self, stdscreen):
-
         # Screen/Window Object from curses
         self.stdscreen   = stdscreen
+        curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.curs_set(0)
+
         # Tuple of the max coordinates (y, x)
         self.borders     = stdscreen.getmaxyx()
+
         self.dropletList = [] 
-        for i in range(7):
-            pos = self.ChooseRandPos()
-            self.dropletList.insert(0, Droplet(pos))
+
+        # This equates to roughly 1 droplet made for every 4 columns
+        for i in range(self.borders[1] // 4):
+            self.dropletList.insert(0, Droplet(self.borders))
 
 
 
@@ -24,7 +28,7 @@ class MatrixRainer:
         while True:
             self.DrawDroplets()
             self.TickDroplets()
-            sleep(0.1)
+            sleep(0.15)
 
 
     def LetItDebug(self):
@@ -33,24 +37,30 @@ class MatrixRainer:
         print(self.dropletList[2].GetY())
 
 
+    def TrailGreen(self, drop):
+
+        if drop.HasPrevPos():
+            pos = drop.GetPrevPos()
+            ch = self.stdscreen.instr(pos[0], pos[1], 1)
+            self.stdscreen.addstr(pos[0], pos[1], ch, curses.color_pair(2))
 
 
-    def ChooseRandPos(self) -> list:
-        # Subtract a bit from Y to prevent drops from starting at very bottom.
-        y = random.randrange(0, self.borders[0] - 4)
-        x = random.randrange(0, self.borders[1])
-        return [y, x]
-        
+        # if (y > 0):
+        #     ch = self.stdscreen.instr(y, x, 1)
+        #     self.stdscreen.addstr(y, x, ch, curses.color_pair(2))
 
 
 
 
     def DrawDroplets(self):
         for i in range(len(self.dropletList)):
-            y = self.dropletList[i].GetY()
-            x = self.dropletList[i].GetX()
-            t = self.dropletList[i].GetToken()
-            self.stdscreen.addstr(y, x, t)
+            d = self.dropletList[i]
+
+            # self.stdscreen.addstr(y, x, t, curses.color_pair(2))
+            self.stdscreen.addstr(d.GetY(), d.GetX(), d.GetToken())
+            self.TrailGreen(d)
+
+
 
         self.stdscreen.refresh()
 
